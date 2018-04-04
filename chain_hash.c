@@ -40,7 +40,7 @@ int main() {
 
 node * n_init() {
     node * temp = (node *) malloc(sizeof(node));
-    //temp = NULL;
+    temp = NULL;
 
     return(temp);
 }
