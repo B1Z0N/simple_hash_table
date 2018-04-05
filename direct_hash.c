@@ -19,24 +19,19 @@ void h_free(h_table ** h);
 int main() {
     h_table * tab;
     int i;
+    RAND;
 
     void (*add_func_ptr) (void *, int, int *, int *) = h_add;
     item * (*sch_func_ptr) (void *, int, int *, int *) = h_sch;
-    
     for(i = 0; i < TEST_NUM; i++) {
         tab = h_init(MAX);
+        printf("!\n!\n!\n");
         h_gen_rand((void *) tab, MAX, add_func_ptr);
-        h_free(&tab);
-    }
-    printf("!\n!\n!\n");
-
-    for(i = 0; i < TEST_NUM; i++) {
-        tab = h_init(MAX);
+        printf("!\n!\n!\n");
         h_gen_rand((void *) tab, MAX, (void *) sch_func_ptr);
         h_free(&tab);
     }
-
-    h_free(&tab);
+    
     return (0);
 }
 

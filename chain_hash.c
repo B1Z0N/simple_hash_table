@@ -21,20 +21,22 @@ void h_del(h_table * h, int key);
 node * h_sch(void * h, int key, int * cmp, int * cop);
 void h_free(h_table ** h);
 int main() {
-    h_table * hash = h_init(N);
+    h_table * hash;
     int i;
+    RAND;
 
-    void (*add_ptr) (void *, int, int *, int *) = h_add;
-    node *(*sch_ptr) (void *, int, int *, int *) = h_sch;
+    void (*add_func_ptr) (void *, int, int *, int *) = h_add;
+    node *(*sch_func_ptr) (void *, int, int *, int *) = h_sch;
     
-    for(i = 0; i < TEST_NUM; i++)
-        h_gen_rand((void *) hash, MAX, add_ptr);
-    printf("!\n!\n!\n");
-    
-    for(i = 0; i < TEST_NUM; i++)
-        h_gen_rand((void *) hash, MAX, (void *) sch_ptr);
+    for(i = 0; i < TEST_NUM; i++) {
+        hash = h_init(N);
+        printf("!\n!\n!\n");
+        h_gen_rand((void *) hash, MAX, add_func_ptr);
+        printf("!\n!\n!\n");
+        h_gen_rand((void *) hash, MAX, (void *) sch_func_ptr);
+        h_free(&hash);
+    }
 
-    h_free(&hash);
     return(0);
 }
 
@@ -67,22 +69,27 @@ void n_del(node ** root, int key) {
     prev->next = temp->next;
     free(temp);
 }
-node * n_sch(node * root, int key, int * cmp, int * cop) {
-     node * temp = root;
+node * n_sch(node * root, int key, int * cmp, int * cop) {  
+    while(root) {
+        (*cmp)++;
+        if(root->key == key) return root;
+        (*cop)++;
+        root = root->next;
+    }
 
-     while(temp != NULL && temp->key != key) {temp = temp->next; (*cmp)++; (*cop)++; }
-
-     return(temp);
+    return NULL;
 }
 ////////////////////////////////////////////////////////////
 h_table * h_init(int max) {
     h_table * temp = (h_table *) malloc(sizeof(h_table));
-    temp->array = (node **) malloc(sizeof(node) * max);
+    temp->array = (node **) malloc(sizeof(node *) * max);
 
     temp->size = max;
 
-    for(int i = 1; i < max; i++)
-        temp->array[i] = NULL;
+    for(int i = 0; i < max; i++) {
+        temp->array[i] = n_init();
+        //temp->array[i]->next = NULL;
+    }
 
     return(temp);
 }
@@ -102,6 +109,7 @@ node * h_sch(void * h, int key, int * cmp, int * cop) {
     h_table * tab = (h_table *) h;
 
     int num = key % tab->size;
+
     node * temp = n_sch(tab->array[num], key, cmp, cop);
     (*cop)++;
     
@@ -114,6 +122,10 @@ node * h_sch(void * h, int key, int * cmp, int * cop) {
 }
 
 void h_free(h_table ** h) {
+    for(int i = 0; i < (*h)->size; i++)
+        free((*h)->array[i]);
+
     free((*h)->array);
+    
     free((*h));
 }
